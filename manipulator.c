@@ -1,7 +1,8 @@
 #include  <stdio.h>// zrobic to ze pozycja targetu gdy jest podniesiony rowna sie pozycji manipulatora
-#include <stdbool.h>// jako werjsa 1.1 probowac pozbyc sie tylu ifow
-int error_number = 0;
-int part_in_magazine = 0;
+#include <stdbool.h>
+#define MAX_DEFINE_X 100
+int error_number = 0;// teraz zrobic to ze mam limity osi i zaczac bawic sie plikiem main.h
+int part_in_magazine = 0; //dodac mape i liinie y 
 int what_to_do_menu = 0;
 typedef struct //dodac tutaj tryb auto i manual jako druga wersja
 {
@@ -14,7 +15,7 @@ typedef struct
     int error_numbers;
     char const *message;
 }Error_info; 
-
+int map[MAX_DEFINE_X];
 const Error_info error_infoo  [] =
 {
     {1, "nie ma takiego wyboru\r\n"},
@@ -24,6 +25,7 @@ const Error_info error_infoo  [] =
     {5, "nie ma zadnego targetu na mapie\r\n"},
     {6, "figurka nie trafila do magazynu\r\n"},
     {7, "nie podniosles manipulatorem figurki\r\n"},
+    {8, "maksymalny x osiagniety nie mozna isc powyzej 100 \r\n"},
 };
 
 typedef enum
@@ -58,10 +60,7 @@ typedef struct
     const Error_info *error_info;
 
 }Machine;
-void (*struct_tabel[8])[Machine *]
-{
-
-};
+void (*struct_tabel[8])(Machine *);
 
 
 void move_x(Machine *machine)
@@ -69,12 +68,21 @@ void move_x(Machine *machine)
         int move_x = 0;
         printf("o ile chcesz sie ruszyc w pozycji x\r\n");
         scanf("%d", &move_x);
+        if(move_x > MAX_DEFINE_X)
+        {
+            move_x = 0;
+            error_number = 8;
+            machine->menu = STATE_ERROR;
+            struct_tabel[machine->menu](machine);
+
+        }
         machine->manipulator.position_x += move_x;
         machine->menu = STATE_MENU;
         struct_tabel[machine->menu](machine);
 }
 void settings(Machine *machine)
 {
+        int target_move_x = 0; 
         int what_to_do_settings = 0;
         printf("co chcesz zrobic\r\n"
         "1.ustawic pozycje x targetu\r\n");
@@ -82,7 +90,15 @@ void settings(Machine *machine)
         if(what_to_do_settings == 1)
         {
             printf("podaj pozycje x\r\n");
-                scanf("%d", &machine->target.position_x);
+                scanf("%d", &target_move_x);
+                if(target_move_x > MAX_DEFINE_X)
+                {
+                    target_move_x = 0;
+                    error_number = 8;
+                    machine->menu = STATE_ERROR;
+                    struct_tabel[machine->menu](machine);
+                }
+                machine->target.position_x = target_move_x;
                 machine->target.target_on_map = true;
                 machine->menu = STATE_MENU;
                 struct_tabel[machine->menu](machine);
@@ -180,7 +196,7 @@ void menu(Machine *machine);
 
 void error(Machine *machine)
 {
-        for(int i = 0; i < 7; i++)
+        for(int i = 0; i < 8; i++)
         {
             if(machine->error_info[i].error_numbers == error_number)
             {
@@ -191,25 +207,8 @@ void error(Machine *machine)
             }
         }
 }
-struct_tabel[0] = menu;
-struct_tabel[1] = move_x;
-struct_tabel[2] = magazine;
-struct_tabel[3] = pick;
-struct_tabel[4] = settings;
-struct_tabel[5] = drop;
-struct_tabel[6] = status;
-struct_tabel[7] = error;
-void (*struct_tabel[])(Machine *) =
-{
-    menu,
-    move_x,
-    magazine,
-    pick,
-    settings,
-    drop,
-    status,
-    error
-};
+
+
 void menu(Machine *machine)
 {
         printf("co chcesz zrobic\r\n"
@@ -234,6 +233,14 @@ void working_machine(Machine *machine)
 }
 int main(void)
 {
+    struct_tabel[0] = menu;
+    struct_tabel[1] = move_x;
+    struct_tabel[2] = magazine;
+    struct_tabel[3] = pick;
+    struct_tabel[4] = settings;
+    struct_tabel[5] = drop;
+    struct_tabel[6] = status;
+    struct_tabel[7] = error;
     Machine machine = {0};
     machine.error_info = error_infoo;
     working_machine(&machine);
