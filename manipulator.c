@@ -83,7 +83,7 @@ void move_y(Machine *machine)
     int move_y = 0;
     printf("o ile chcesz sie ruszyc w osi y");
     scanf("%d", &move_y);
-    if(move_y > MAX_DEFINE_Y)
+    if(machine->manipulator.position_y + move_y > MAX_DEFINE_Y)
     {
         move_y = 0;
         error_number = 0;
@@ -101,7 +101,7 @@ void move_x(Machine *machine)
         int move_x = 0;
         printf("o ile chcesz sie ruszyc w pozycji x\r\n");
         scanf("%d", &move_x);
-        if(move_x > MAX_DEFINE_X)
+        if(machine->manipulator.position_x + move_x > MAX_DEFINE_X)
         {
             move_x = 0;
             error_number = 8;
@@ -111,7 +111,6 @@ void move_x(Machine *machine)
         }
         machine->manipulator.position_x += move_x;
         machine->menu = STATE_MOVE;
-        struct_tabel[machine->menu](machine);
 }
 void move(Machine *machine)
 {
@@ -130,7 +129,7 @@ void move(Machine *machine)
     {
         map[machine->manipulator.position_y][machine->manipulator.position_x] = 2;
         machine->menu = STATE_MENU;
-        struct_tabel[machine->menu](machine);
+
 
     }
 
@@ -145,29 +144,29 @@ void settings(Machine *machine)
         scanf("%d", &what_to_do_settings);
         if(what_to_do_settings == 1)
         {
-            printf("podaj pozycje x i y\r\n");
+            printf("o ile chcesz sie ruszyc w pozycjach x i y\r\n");
                 scanf("%d", &target_move_x);
                 scanf("%d", &target_move_y);
-                if(target_move_x > MAX_DEFINE_X)
+                if(machine->target.position_x + target_move_x > MAX_DEFINE_X)
                 {
+                    error_number = 8;
                     target_move_x = 0;
-                    error_number = 8;
                     machine->menu = STATE_ERROR;
                     struct_tabel[machine->menu](machine);
+
                 }
-                if(target_move_y > MAX_DEFINE_Y)
+                if(machine->target.position_y + target_move_y > MAX_DEFINE_Y)
                 {
-                    target_move_y = 0;
                     error_number = 8;
+                    target_move_y = 0;
                     machine->menu = STATE_ERROR;
                     struct_tabel[machine->menu](machine);
                 }
-                machine->target.position_y = target_move_y;
-                machine->target.position_x = target_move_x;
+                machine->target.position_y += target_move_y;
+                machine->target.position_x += target_move_x;
                 map[machine->target.position_y][machine->target.position_x] = 1;
                 machine->target.target_on_map = true;
                 machine->menu = STATE_MENU;
-                struct_tabel[machine->menu](machine);
         }
         else
         {
@@ -181,7 +180,7 @@ void pick(Machine *machine)
         if(machine->target.target_on_map)
         {
             machine->sensors.part_detected = true;
-                    if(machine->target.position_x == machine->manipulator.position_x)
+                    if(machine->target.position_x == machine->manipulator.position_x && machine->target.position_y == machine->manipulator.position_y)
                     {
                         if(machine->sensors.part_detected)
                         {
