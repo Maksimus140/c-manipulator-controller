@@ -1,21 +1,10 @@
-#include  <stdio.h>// zrobic to ze pozycja targetu gdy jest podniesiony rowna sie pozycji manipulatora
+#include  <stdio.h>
 #include <stdbool.h>
-#define MAX_DEFINE_X 100 // nauczyc sie size_off
-#define MAX_DEFINE_Y 50
+#include "main.h"
 int error_number = 0;// zaczac bawic sie plikiem main.h
 int part_in_magazine = 0;
 int what_to_do_menu = 0;
-typedef struct //dodac tutaj tryb auto i manual jako druga wersja
-{
-    bool part_detected; 
-    bool part_gripped;
-    bool part_in_magazine;
-} Sensors;
-typedef struct
-{
-    int error_numbers;
-    char const *message;
-}Error_info; 
+
 int map[MAX_DEFINE_Y][MAX_DEFINE_X] = {0};
 const Error_info error_infoo  [] =
 {
@@ -29,41 +18,6 @@ const Error_info error_infoo  [] =
     {8, "maksymalny x osiagniety nie mozna isc powyzej 100 \r\n"},
 };
 
-typedef enum
-{
-    STATE_MENU,
-    STATE_MOVE,
-    STATE_MAGAZINE,
-    STATE_PICK,
-    STATE_SETTINGS,
-    STATE_DROP,
-    STATE_STATUS,
-    STATE_MAP,
-    STATE_ERROR,
-}Menu;
-typedef struct
-{
-    bool gripper;
-    int position_x;
-    int position_y;
-
-}Manipulator;
-typedef struct
-{
-    int position_x;
-    int position_y;
-    bool target_on_map;
-}Target;
-typedef struct
-{
-    Manipulator manipulator;
-    Menu menu;
-    Target target;
-    Sensors sensors;
-    const Error_info *error_info;
-    size_t error_count;
-
-}Machine;
 void (*struct_tabel[9])(Machine *);
 
 void map_print(Machine *machine)
@@ -257,7 +211,7 @@ void status(Machine *machine)
         machine->menu = STATE_MENU;
         struct_tabel[machine->menu](machine);
 }
-void menu(Machine *machine);
+
 
 void error(Machine *machine)
 {
