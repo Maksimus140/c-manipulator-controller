@@ -21,7 +21,7 @@ void math_conveyor_speed(Conveyor *conveyor)
 {
     conveyor->speed = Distance/conveyor->motor.speed_motor;
 
-    
+
 }
 void turn_on_motor(Conveyor *conveyor)
 {
